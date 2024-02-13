@@ -9,7 +9,7 @@ class Feature {
     }
 
     async maybeStart() {
-        if (await this.config.get(this.configName)) {
+        if (await this.config.get("enabled")) {
             this.start();
         } else {
             this.stop();
@@ -28,26 +28,36 @@ class Feature {
 
 /* Burp Proxy */
 
-function proxify(config, onlyContainers) {
+function proxify(config) {
+    // Proxy Mode
+    // useBurpProxyPwnFoxContainer - Only PwnFox Containers
+    // useBurpProxyContainer - All Containers
+    // useBurpProxyAll - All Request
     return async function (e) {
-        if (onlyContainers && e.cookieStoreId == 'firefox-default')
-            return { type: "direct" };
-        const host = await config.get("burpProxyHost")
-        const port = await config.get("burpProxyPort")
-        return {
-            type: "http",
-            host,
-            port
-        };
+        const identity = await browser.contextualIdentities.get(e.cookieStoreId)
+        const proxyMode = await config.get("proxyMode")
+        //console.log("Proxify "+ proxyMode)
+        if (proxyMode == "useBurpProxyAll"
+            || (proxyMode == "useBurpProxyContainer" && e.cookieStoreId != 'firefox-default')
+            || (proxyMode == "useBurpProxyPwnFoxContainer" && e.cookieStoreId != 'firefox-default' && identity.name.startsWith("PwnFox-"))) {
+            const host = await config.get("burpProxyHost")
+            const port = await config.get("burpProxyPort")
+            return {
+                type: "http",
+                host,
+                port
+            };
+        }
+        return { type: "direct" };
     }
 }
 
 
 
-class UseBurpProxyAll extends Feature {
+class UseBurpProxy extends Feature {
     constructor(config) {
-        super(config, 'useBurpProxyAll')
-        this.proxy = proxify(config, false)
+        super(config, 'proxyMode')
+        this.proxy = proxify(config)
     }
 
     async start() {
@@ -63,27 +73,6 @@ class UseBurpProxyAll extends Feature {
         super.stop()
     }
 }
-
-
-class UseBurpProxyContainers extends Feature {
-    constructor(config) {
-        super(config, 'useBurpProxyContainer')
-        this.proxy = proxify(config, true)
-    }
-
-    async start() {
-        super.start()
-        if (!await this.config.get("enabled")) return
-
-        browser.proxy.onRequest.addListener(this.proxy, { urls: ["<all_urls>"] })
-    }
-
-    stop() {
-        super.stop()
-        browser.proxy.onRequest.removeListener(this.proxy)
-    }
-}
-
 
 /* Add Color Headers */
 
@@ -263,8 +252,7 @@ class FeaturesGroup extends Feature {
 class BackgroundFeatures extends FeaturesGroup {
     constructor(config) {
         const features = [
-            new UseBurpProxyContainers(config),
-            new UseBurpProxyAll(config),
+            new UseBurpProxy(config),
             new AddContainerHeader(config),
             new InjectToolBox(config),
             new RemoveSecurityHeaders(config),

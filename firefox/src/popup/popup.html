@@ -23,10 +23,11 @@
         <h2>Options</h2>
         <hr>
         <label class="option-entry">
-            Proxify all tabs <input id="option-useBurpProxyAll" type="checkbox">
-        </label>
-        <label class="option-entry">
-            Proxify only containers tabs <input id="option-useBurpProxyContainer" type="checkbox">
+            <select name="proxyMode" id="select-proxyMode">
+                <option value="useBurpProxyPwnFoxContainer">Proxify only PwnFox containers tabs</option>
+                <option value="useBurpProxyContainer">Proxify all containers tabs</option>
+                <option value="useBurpProxyAll">Proxify all tabs</option>
+            </select>
         </label>
         <label class="option-entry">
             Add container header <input id="option-addContainerHeader" type="checkbox">
@@ -40,7 +41,7 @@
         </h2>
         <hr>
         <select class="col-123" id="select-toolbox"></select>
-        <h2>New container tab</h2>
+        <h2>New PwnFox container tab</h2>
         <hr>
         <div id="identities">
         </div>

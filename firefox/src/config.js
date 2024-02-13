@@ -2,7 +2,7 @@
 
 const defaultConfig = {
     enabled: false,
-    useBurpProxy: false,
+    proxyMode: 'useBurpProxyPwnFoxContainer',
     addContainerHeader: true,
     injectToolbox: false,
     logPostMessage: true,

@@ -24,7 +24,6 @@ async function bindCheckboxToConfig(selector, config, configName) {
 }
 
 
-
 function createContainerTabButtons() {
     const colors = [
         "blue",
@@ -67,8 +66,6 @@ async function main() {
     createContainerTabButtons()
 
     bindCheckboxToConfig("#option-enabled", config, "enabled")
-    bindCheckboxToConfig("#option-useBurpProxyAll", config, "useBurpProxyAll")
-    bindCheckboxToConfig("#option-useBurpProxyContainer", config, "useBurpProxyContainer")
     bindCheckboxToConfig("#option-addContainerHeader", config, "addContainerHeader")
     bindCheckboxToConfig("#option-removeSecurityHeaders", config, "removeSecurityHeaders")
     bindCheckboxToConfig("#option-injectToolbox", config, "injectToolbox")
@@ -78,7 +75,11 @@ async function main() {
         browser.runtime.openOptionsPage()
     })
 
-    const select = document.getElementById("select-toolbox")
+    
+
+    const selectToolbox = document.getElementById("select-toolbox")
+    const selectProxyMode = document.getElementById("select-proxyMode")
+    selectProxyMode.value = await config.get("proxyMode")
     const filenames = Object.keys(await config.get("savedToolbox"))
     const activeToolbox = await config.get("activeToolbox");
     for (const filename of filenames) {
@@ -86,20 +87,16 @@ async function main() {
         option.value = filename
         option.selected = filename === activeToolbox
         option.innerText = filename
-        select.appendChild(option)
+        selectToolbox.appendChild(option)
     }
-    select.addEventListener("change", () => {
-        config.set("activeToolbox", select.value)
+    selectToolbox.addEventListener("change", () => {
+        config.set("activeToolbox", selectToolbox.value)
+    })
+    selectProxyMode.addEventListener("change", () => {
+        config.set("proxyMode", selectProxyMode.value)
     })
     config.onChange('enabled', togglePwnfox, true)
     togglePwnfox(await config.get("enabled"))
 }
 
 window.addEventListener("load", main)
-
-
-
-
-
-
-

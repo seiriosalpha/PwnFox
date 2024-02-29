@@ -28,7 +28,6 @@ jobs:
 
     - name: Sign extension
       run: |
-        cd firefox
         web-ext sign --api-key="${{ secrets.KEY }}" --api-secret="${{ secrets.VALUE }}"
       env:
         WEB_EXT_SOURCE_DIR: ./firefox

@@ -16,7 +16,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '14'
+        node-version: '18'
 
     - name: Install web-ext
       run: npm install --global web-ext
@@ -26,8 +26,17 @@ jobs:
         cd firefox
         web-ext build
 
-    - name: Upload Artifact
+    - name: Sign extension
+      if: ${{ secrets.KEY && secrets.SECRET }}
+      run: |
+        cd firefox
+        web-ext sign --api-key="${{ secrets.KEY }}" --api-secret="${{ secrets.SECRET }}"
+      env:
+        WEB_EXT_SOURCE_DIR: ./firefox
+
+    - name: Upload signed artifact (optional)
+      if: ${{ secrets.KEY && secrets.SECRET }}
       uses: actions/upload-artifact@v4
       with:
-        name: firefox-extension
-        path: firefox/web-ext-artifacts/*.zip
+        name: pwnfox-signed-extension
+        path: firefox/web-ext-artifacts/*.xpi

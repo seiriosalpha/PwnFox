@@ -36,4 +36,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: pwnfox-signed-extension
-        path: firefox/web-ext-artifacts/*.xpi
+        path: ./web-ext-artifacts/*.xpi

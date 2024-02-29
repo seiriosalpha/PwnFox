@@ -27,15 +27,13 @@ jobs:
         web-ext build
 
     - name: Sign extension
-      if: ${{ secrets.KEY && secrets.SECRET }}
       run: |
         cd firefox
-        web-ext sign --api-key="${{ secrets.KEY }}" --api-secret="${{ secrets.SECRET }}"
+        web-ext sign --api-key="${{ secrets.KEY }}" --api-secret="${{ secrets.VALUE }}"
       env:
         WEB_EXT_SOURCE_DIR: ./firefox
 
-    - name: Upload signed artifact (optional)
-      if: ${{ secrets.KEY && secrets.SECRET }}
+    - name: Upload signed artifact
       uses: actions/upload-artifact@v4
       with:
         name: pwnfox-signed-extension
